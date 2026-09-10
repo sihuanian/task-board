@@ -1,0 +1,12 @@
+{
+  "name": "task-board",
+  "version": "1.0.0",
+  "description": "轻量级单页任务管理看板应用 - 纯前端，零外部依赖",
+  "private": true,
+  "scripts": {
+    "start": "npx serve app",
+    "dev": "npx serve app"
+  },
+  "keywords": ["kanban", "task-management", "todo", "vanilla-js"],
+  "license": "MIT"
+}
