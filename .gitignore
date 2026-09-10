@@ -19,3 +19,9 @@ _runtime/
 .temp/
 *.token_cache*
 *.token_cache*.lock
+
+# Unrelated project dirs
+app/kdtest_*/
+app/appMapping.tsv
+skills/
+.lingeebuild/
