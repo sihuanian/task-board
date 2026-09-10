@@ -251,6 +251,12 @@ const store = {
     return _state.columnVisibility[col];
   },
 
+  resetColumnVisibility() {
+    _state.columnVisibility = { todo: true, 'in-progress': true, done: true };
+    persist();
+    notify();
+  },
+
   /* ── Preferences ───────────────────────────────────────────────────── */
   toggleDarkMode() {
     _state.preferences.darkMode = !_state.preferences.darkMode;

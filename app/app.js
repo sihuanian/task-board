@@ -29,6 +29,7 @@
   const corruptionCancel = document.getElementById('corruption-cancel');
   const exportBtn  = document.getElementById('export-btn');
   const darkToggle = document.getElementById('dark-toggle');
+  const showAllColsBtn = document.getElementById('show-all-cols');
   const htmlEl     = document.documentElement;
 
   /* ── State ─────────────────────────────────────────────────────────── */
@@ -63,6 +64,10 @@
   function render() {
     const state = store.getState();
     const tasks = store.getAllTasks();
+
+    // Show/hide "show all columns" button
+    const anyHidden = Object.values(state.columnVisibility).some(v => v === false);
+    showAllColsBtn.style.display = anyHidden ? '' : 'none';
 
     // Filter by search term
     const filteredTasks = searchTerm
@@ -586,6 +591,12 @@
     darkToggle.addEventListener('click', () => {
       const dark = store.toggleDarkMode();
       applyDarkMode(dark);
+    });
+
+    // Show all columns
+    showAllColsBtn.addEventListener('click', () => {
+      store.resetColumnVisibility();
+      render();
     });
 
     // Error banner close
