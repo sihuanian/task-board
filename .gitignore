@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+package.json
+package-lock.json
+bun.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Runtime
+_runtime/
+.temp/
+*.token_cache*
+*.token_cache*.lock
