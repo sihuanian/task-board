@@ -25,3 +25,7 @@ app/kdtest_*/
 app/appMapping.tsv
 skills/
 .lingeebuild/
+
+# BEGIN expert-team local state
+/.expert-team/
+# END expert-team local state
