@@ -1,0 +1,230 @@
+{
+  "decision": "blocked",
+  "summary": {
+    "objective": "独立验收 wi-t1000001：任务看板列头“隐藏/显示列”按钮的图标由三点符号 ••• 更换为小眼睛内联 SVG，并确认列切换、顶栏“显示所有列”恢复与可访问性行为不变",
+    "changedBehavior": "app/app.js 列头 render() 模板中 .column-toggle-btn 内容由 &bull;&bull;&bull; 改为内联描边眼睛 SVG（viewBox 0 0 24 24、fill=none、stroke=currentColor、stroke-width=2、stroke-linecap/join=round、16×16）；app/style.css 将 .column-toggle-btn 改为 inline-flex 居中、line-height:0 并新增 .column-toggle-btn svg{display:block;width:16px;height:16px}；title=\"隐藏/显示列\"、aria-label、data-toggle-col 与列切换事件绑定保持原样；store.js、index.html、.column.hidden{display:none} 语义未改动",
+    "nonGoals": [
+      "不新增“隐藏后保留列头、以斜杠眼睛就地恢复”的单列恢复控件（恢复入口仍为顶栏“显示所有列”）",
+      "不更换导出、深色模式、删除等其它按钮图标",
+      "不改动列数量、列含义、拖拽、内联编辑、搜索、导出等既有功能",
+      "不涉及数据持久化结构变更；移动端/窄屏形态按设计基线第 3 节不在范围内"
+    ],
+    "riskLabels": [
+      "纯前端呈现层变更，无服务端、无数据库、无认证边界",
+      "验收相关：冻结 requirements.md 采用表格排版，报告官方校验器无法解析整改的入口类型"
+    ]
+  },
+  "environment": {
+    "name": "桌面 Web 浏览器 + 本地静态服务（托管 app/ 目录，等价 README 的 npx serve app）",
+    "version": "task-board 1.0.0；源码 commit 87f67ce（工作区 fd9b55f8…，docs/wi-t1000001）",
+    "dataProfile": "浏览器 localStorage 空白初始状态：三列默认可见、无任务卡片、无预置数据；主题默认浅色",
+    "configuration": "QA 独立后台作业 a0c67665-92cd-4545-901c-6abc80cfa667，python3 -m http.server 8137 --directory app --bind 127.0.0.1；页面 http://127.0.0.1:8137/index.html；agent_browser 会话 lingee-preview-4-0b20cb63337bff98"
+  },
+  "verification": [
+    {
+      "checkId": "CHK-ICON-RENDER",
+      "type": "browser-ui",
+      "status": "passed",
+      "plan": [
+        {
+          "requirementId": "AC-01",
+          "kind": "runtime-render",
+          "action": "打开看板并读取列头 .column-toggle-btn 的按钮内容与整页文本",
+          "expected": "按钮内为内联眼睛 SVG（viewBox 0 0 24 24、stroke=currentColor、stroke-width=2），页面任何列头都不再出现三点符号 •••"
+        },
+        {
+          "requirementId": "AC-05",
+          "kind": "visual-style",
+          "action": "分别在浅色与深色主题下读取 .column-toggle-btn svg 的 getComputedStyle（stroke/width/height）并与顶栏既有描边图标对照",
+          "expected": "两种主题下图标颜色继承主题文本色、可见，且与既有描边图标同为 stroke-width 2 描边风格"
+        }
+      ],
+      "observation": {
+        "method": "browser",
+        "actor": "expert",
+        "reference": "agent_browser 会话 lingee-preview-4-0b20cb63337bff98 于 http://127.0.0.1:8137/index.html；只读 eval 读取 3 个 .column-toggle-btn 的首子元素 svg 属性、board.innerText/innerHTML，以及浅色/深色下的 getComputedStyle(getBoundingClientRect)"
+      },
+      "assertions": [
+        {
+          "requirementId": "AC-01",
+          "kind": "runtime-render",
+          "action": "读取列头按钮内容与整页文本",
+          "expected": "按钮内为内联眼睛 SVG（viewBox 0 0 24 24、stroke=currentColor、stroke-width=2），页面无 •••",
+          "actual": "3 个 .column-toggle-btn 首子元素均为 svg：viewBox=0 0 24 24、stroke=currentColor、stroke-width=2、text=''（无文字节点）；board.innerText 与 board.innerHTML 均不含 '•••' 或 '&bull;'",
+          "status": "passed"
+        },
+        {
+          "requirementId": "AC-05",
+          "kind": "visual-style",
+          "action": "浅色/深色主题下读取 svg 计算样式并对照顶栏既有图标",
+          "expected": "两主题下颜色继承主题变量、图标可见，描边风格与既有图标一致",
+          "actual": "浅色：svg stroke=rgb(151,160,175)=var(--text-muted)、16×16、display=block、stroke-width=2px；深色：stroke=rgb(110,118,129)、16×16、display=block、stroke-width=2px（body 背景 rgb(27,31,35)）；对照 #export-btn svg 同为 stroke-width=2px（18px）。两主题颜色均随主题文本色变化且非透明",
+          "status": "passed"
+        }
+      ],
+      "evidence": "3 个列头按钮均渲染内联眼睛 SVG 且规格一致（viewBox 0 0 24 24 / stroke=currentColor / stroke-width=2 / 16×16），页面无 ••• 残留；浅色 stroke rgb(151,160,175)、深色 rgb(110,118,129)，与既有描边图标同为 2px 描边，两主题下均可见"
+    },
+    {
+      "checkId": "CHK-HIDE-COL",
+      "type": "browser-ui",
+      "status": "passed",
+      "plan": [
+        {
+          "requirementId": "AC-02",
+          "kind": "interaction",
+          "action": "点击待办列头眼睛按钮",
+          "expected": "待办列从看板隐藏（不可见），其余列仍正常显示"
+        }
+      ],
+      "observation": {
+        "method": "browser",
+        "actor": "expert",
+        "reference": "agent_browser 会话 lingee-preview-4-0b20cb63337bff98；点击列头切换按钮后只读 eval 读取各 .column 的 hidden 类、display、getBoundingClientRect 与 localStorage.task-board-state.columnVisibility"
+      },
+      "assertions": [
+        {
+          "requirementId": "AC-02",
+          "kind": "interaction",
+          "action": "点击待办列头眼睛按钮",
+          "expected": "待办列从看板隐藏，其余列仍显示",
+          "actual": "点击后 .column[data-column=todo] 含 class hidden、display=none、rect 宽度 0；进行中/已完成仍 display=flex、rect 宽 336px；localStorage columnVisibility={todo:false,'in-progress':true,done:true}",
+          "status": "passed"
+        }
+      ],
+      "evidence": "点击待办列眼睛按钮后该列 display:none（rect 宽 0），其余两列保持可见，且列可见性已持久化为 todo:false"
+    },
+    {
+      "checkId": "CHK-SHOW-ALL",
+      "type": "browser-ui",
+      "status": "passed",
+      "plan": [
+        {
+          "requirementId": "AC-03",
+          "kind": "interaction",
+          "action": "点击顶栏“显示所有列”按钮",
+          "expected": "三列全部恢复显示，恢复列头重新渲染眼睛 SVG 且无三点符号残留"
+        }
+      ],
+      "observation": {
+        "method": "browser",
+        "actor": "expert",
+        "reference": "agent_browser 会话 lingee-preview-4-0b20cb63337bff98；点击顶栏显示所有列按钮（隐藏待办列后按钮才出现）后只读 eval 读取三列状态、眼晴 SVG 的 viewBox 与 localStorage.columnVisibility"
+      },
+      "assertions": [
+        {
+          "requirementId": "AC-03",
+          "kind": "interaction",
+          "action": "点击顶栏“显示所有列”按钮",
+          "expected": "三列全部恢复显示，列头重现眼睛 SVG 且无三点残留",
+          "actual": "点击后三列均 display=flex、rect 宽 336px；.column-toggle-btn svg 数量=3，viewBox 均为 0 0 24 24；board 不含 '•••'；顶栏按钮回到 display=none；localStorage columnVisibility={todo:true,'in-progress':true,done:true}",
+          "status": "passed"
+        }
+      ],
+      "evidence": "点击顶栏“显示所有列”后三列全部恢复可见（display:flex、宽 336px），3 个列头重新渲染眼睛 SVG 且无 ••• 残留，存储可见性全部 true"
+    },
+    {
+      "checkId": "CHK-A11Y",
+      "type": "browser-ui",
+      "status": "passed",
+      "plan": [
+        {
+          "requirementId": "AC-04",
+          "kind": "runtime-render",
+          "action": "读取眼睛按钮的 title 与 aria-label 属性",
+          "expected": "title 为“隐藏/显示列”；aria-label 说明该列可见性切换语义（含列名）"
+        },
+        {
+          "requirementId": "AC-04",
+          "kind": "interaction",
+          "action": "用键盘将焦点移到眼睛按钮",
+          "expected": "按钮可获得键盘焦点（document.activeElement 指向该按钮）"
+        }
+      ],
+      "observation": {
+        "method": "browser",
+        "actor": "expert",
+        "reference": "agent_browser 会话 lingee-preview-4-0b20cb63337bff98；get attr 读取 title/aria-label；点击搜索框后再按一次 Tab，读取 document.activeElement"
+      },
+      "assertions": [
+        {
+          "requirementId": "AC-04",
+          "kind": "runtime-render",
+          "action": "读取眼睛按钮 title 与 aria-label 属性",
+          "expected": "title 为“隐藏/显示列”；aria-label 描述该列可见性切换（含列名）",
+          "actual": "3 个按钮 title 均为“隐藏/显示列”；aria-label 分别为“切换待办列可见性”“切换进行中列可见性”“切换已完成列可见性”",
+          "status": "passed"
+        },
+        {
+          "requirementId": "AC-04",
+          "kind": "interaction",
+          "action": "键盘 Tab 聚焦到眼睛按钮",
+          "expected": "按钮可获得键盘焦点",
+          "actual": "在搜索框取得焦点后按一次 Tab，document.activeElement.className='column-toggle-btn'、aria-label='切换待办列可见性'、isToggle=true，按钮获得键盘焦点",
+          "status": "passed"
+        }
+      ],
+      "evidence": "3 个列头按钮均保留 title=\"隐藏/显示列\" 与含列名的 aria-label；键盘 Tab 可将焦点移到该按钮（activeElement 为该 .column-toggle-btn）"
+    },
+    {
+      "checkId": "CHK-REQ-SURFACE",
+      "type": "requirements-completeness",
+      "status": "blocked",
+      "plan": [
+        {
+          "requirementId": "AC-01",
+          "action": "解析冻结 requirements.md 的验收条件入口类型，校验其可被报告校验器识别",
+          "expected": "AC-01~AC-05 每项都能解析出入口类型（UI/浏览器）"
+        }
+      ],
+      "observation": {
+        "method": "static-review",
+        "actor": "expert",
+        "reference": "docs/wi-t1000001/requirements.md 第 7 节“验收条件”为 Markdown 表格（| AC | 强制程度 | 入口类型 | …）；general-app-qa-expert/tools/quality-report-validator.mjs acceptanceSurfaces() 要求 AC 编号出现在 '### AC-xx' 标题行并在该区块内出现 '入口类型：…'"
+      },
+      "evidence": "冻结 requirements.md 的 AC-01~AC-05 位于“## 7. 验收条件”表格行内，编号不在标题行；以校验器同款解析逻辑实测 requirementSurfaces 解析结果为 0 项。因此官方校验器对任何非空 coverage.mandatoryAcceptance 都会返回 'requirements source does not define an entry type for: AC-01, AC-02, AC-03, AC-04, AC-05'（已实测）。QA 不修改冻结需求基线，无法产出含验收映射且能通过校验的报告，故记为 blocked"
+    }
+  ],
+  "coverage": {
+    "acceptance": "冻结验收 = docs/wi-t1000001/requirements.md 第 7 节（sha256:fce0d636…）AC-01~AC-05，强制程度：AC-01/AC-02/AC-03/AC-04 为「必须」、AC-05 为「推荐」，入口类型均为 UI/浏览器。QA 已在真实浏览器逐项取得通过证据（见 CHK-ICON-RENDER / CHK-HIDE-COL / CHK-SHOW-ALL / CHK-A11Y），但因冻结需求采用表格排版、官方校验器无法解析入口类型，无法填写 coverage.mandatoryAcceptance；按契约要求不修改冻结基线，故 decision=blocked、不虚构验收映射。",
+    "riskLabels": [
+      "纯前端呈现层变更，无服务端、无数据库、无认证边界",
+      "验收相关：冻结 requirements.md 表格排版导致报告校验器无法解析 AC 入口类型"
+    ],
+    "verificationTypes": [
+      "browser-ui",
+      "requirements-completeness"
+    ],
+    "callChains": [
+      "app/index.html 加载 app/store.js + app/app.js；列头按钮 [data-toggle-col] → store.toggleColumnVisibility(col) → render()",
+      "顶栏 #show-all-cols → store.resetColumnVisibility() → render()"
+    ]
+  },
+  "defects": [
+    {
+      "id": "QA-001",
+      "severity": "blocking",
+      "taskId": "T01",
+      "environment": "桌面 Web 浏览器 + 本地静态服务托管 app/（python3 -m http.server 8137，QA 后台作业 a0c67665-92cd-4545-901c-6abc80cfa667，页面 http://127.0.0.1:8137/index.html）；报告校验器 general-app-qa-expert/tools/quality-report-validator.mjs，声明验证 argv 为 `<report> --context-json '{\"deliveryKind\":\"application\"}'`",
+      "steps": [
+        "1. 阅读冻结输入工件 docs/wi-t1000001/requirements.md：第 7 节“验收条件”以 Markdown 表格登记 AC-01~AC-05 及各自入口类型（UI/浏览器），AC 编号不在标题行。",
+        "2. 以校验器同款解析逻辑（acceptanceSurfaces）对 requirements.md 实测：可解析的验收入口类型为 0 项。",
+        "3. 运行 tools/quality-report-validator.mjs <report> --requirements <requirements.md> --preflight → {\"valid\":false,\"failures\":[\"could not resolve acceptance entry types from .../docs/wi-t1000001/requirements.md\"]}。",
+        "4. 运行声明验证 argv（不带 --requirements，默认读取同目录 requirements.md）→ {\"valid\":false,\"failures\":[\"requirements source does not define an entry type for: AC-01, AC-02, AC-03, AC-04, AC-05\"]}。"
+      ],
+      "expected": "冻结 requirements.md 的每条验收条件都能被报告校验器解析出入口类型（surface），使 verification.json 可在 coverage.mandatoryAcceptance 中登记强制验收（AC-01~AC-04）并依据真实浏览器证据给出 pass 结论。",
+      "actual": "requirements.md 采用表格排版，acceptanceSurfaces 解析结果为 0 项；任何非空的 coverage.mandatoryAcceptance 都会触发 'requirements source does not define an entry type for: …' 失败。因此报告无法在保留强制验收映射的前提下通过官方校验并给出 pass/pass-with-risk；已实测应用侧 AC-01~AC-05 在真实浏览器全部通过（见 CHK-ICON-RENDER / CHK-HIDE-COL / CHK-SHOW-ALL / CHK-A11Y）。",
+      "location": "docs/wi-t1000001/requirements.md 第 7 节“验收条件”（表格排版）；general-app-qa-expert/tools/quality-report-validator.mjs acceptanceSurfaces()（约 19-35 行）",
+      "problem": "冻结需求文档的验收条件格式与 QA 报告官方校验器要求的机器可读格式不兼容：校验器要求 AC 编号出现在 `### AC-xx` 标题行、且该区块内出现 `入口类型：…`，而本需求以表格登记。结果是每条强制验收的入口类型无法被解析，verification.json 无法登记 coverage.mandatoryAcceptance，QA 无法产出 pass/pass-with-risk 结论（应用实现本身经真实浏览器验证合格）。",
+      "requiredChange": "由需求 owner 将 docs/wi-t1000001/requirements.md 第 7 节改写为管线规范格式——每条 AC 一个 `### AC-xx …` 标题块、块内至少包含 `- 入口类型：UI（浏览器）`（同领域包参考需求 wi-t1000032 即该格式，实测可解析出 12 条 UI 入口）；或由平台放宽校验器的验收解析以支持表格排版。本条不要求修改 app/app.js、app/style.css、app/store.js 等生产实现。",
+      "acceptanceEvidence": "预检与声明验证 argv 的真实输出（valid:false，failures 原文见 steps 3/4）；对照同领域包 wi-t1000032 的 requirements.md（`### AC-01 …` + `- 入口类型：UI（浏览器）`）以同一解析逻辑实测可解析出 12 项 user-interface 入口。"
+    }
+  ],
+  "skippedChecks": [],
+  "residualRisks": [
+    "冻结 docs/wi-t1000001/requirements.md 的验收条件为 Markdown 表格排版：AC 编号未出现在标题行，报告官方校验器 quality-report-validator.mjs 的 acceptanceSurfaces() 解析为 0 个入口类型（已实测）。因此该 workitem 的任何非空 coverage.mandatoryAcceptance 都会触发 'requirements source does not define an entry type for: AC-01, AC-02, AC-03, AC-04, AC-05'，QA 无法产出同时含验收映射且通过校验的报告。建议由需求 owner 将第 7 节改排为 '### AC-xx 标题' + '入口类型：UI（浏览器）' 分节格式（同领域包 wi-t1000032 即此格式，实测可解析出 12 项 UI 入口）后重派验证；本报告未修改冻结需求基线。",
+    "本次仅验收桌面 Web 视口；移动端/窄屏按设计基线第 3 节明确不在范围内，未列入缺陷或未执行项。",
+    "AC-04 悬停提示为原生 title 提示，自动化下无法稳定断言提示元素渲染，仅验证 title 属性文本与键盘聚焦（均为真实浏览器读取）。",
+    "眼睛图标仅实现“睁眼”造型（被隐藏列整体 display:none，闭眼分支不可观察），与设计基线 1.3 节一致，非缺陷。"
+  ],
+  "baselineUpdates": []
+}
