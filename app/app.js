@@ -93,7 +93,9 @@
             <span>${col.label}</span>
             <span class="count-badge" data-count-col="${col.key}">${count}</span>
             <div class="column-header-right">
-              <button class="column-toggle-btn" data-toggle-col="${col.key}" title="隐藏/显示列" aria-label="切换${col.label}列可见性">&bull;&bull;&bull;</button>
+              <button class="column-toggle-btn" data-toggle-col="${col.key}" title="隐藏/显示列" aria-label="切换${col.label}列可见性">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
             </div>
           </div>
           <div class="column-body" data-drop-col="${col.key}">

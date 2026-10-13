@@ -337,14 +337,22 @@ html, body {
 }
 
 .column-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
   padding: 2px 4px;
   border-radius: var(--radius-sm);
-  font-size: 14px;
-  line-height: 1;
+  line-height: 0;
+}
+
+.column-toggle-btn svg {
+  display: block;
+  width: 16px;
+  height: 16px;
 }
 
 .column-toggle-btn:hover {

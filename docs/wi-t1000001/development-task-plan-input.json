@@ -1,0 +1,30 @@
+{
+  "tasks": [
+    {
+      "taskId": "T01",
+      "objective": "按已批准的 architecture-baseline.md 第 1.3 节与第 5 节，把看板列头“隐藏/显示列”按钮的呈现由三点符号改为小眼睛内联 SVG：在 app/app.js 的列头模板中替换 &bull;&bull;&bull; 为与页面既有图标同规格的描边眼睛图形（viewBox 0 0 24 24、stroke=currentColor、stroke-width=2、约 14-16px），title/aria-label/data-toggle-col 与点击切换逻辑保持原样；在 app/style.css 中调整 .column-toggle-btn 规则使 SVG 垂直居中、无基线空隙并沿用现有 hover 反馈，不改动 .column.hidden 隐藏语义。完成后以语法检查与静态断言确认无残留三点符号、SVG 规格正确、列切换绑定未丢失，并在浏览器中核对 AC-01~AC-05 所需的呈现与可访问性属性。",
+      "requirementIds": ["AC-01", "AC-02", "AC-03", "AC-04", "AC-05"],
+      "capabilityId": "engineering.implementation",
+      "taskKind": "implement",
+      "executionMode": "spawn_task",
+      "dependsOn": [],
+      "inputArtifacts": [
+        { "path": "docs/wi-t1000001/requirements.md" },
+        { "path": "docs/wi-t1000001/architecture-baseline.md" }
+      ],
+      "artifactPaths": [],
+      "additionalWritePaths": [
+        "app/app.js",
+        "app/style.css"
+      ],
+      "additionalWriteScopes": [],
+      "resourceKeys": [],
+      "verificationCommands": [
+        "node --check app/app.js",
+        "node -e \"const fs=require('fs');const a=fs.readFileSync('app/app.js','utf8');const s=fs.readFileSync('app/style.css','utf8');if(a.includes('&bull;&bull;&bull;'))throw new Error('列头仍存在三点符号');if(!/column-toggle-btn[^>]*data-toggle-col/.test(a))throw new Error('列头切换按钮或 data-toggle-col 丢失');if(!/viewBox=\\\"0 0 24 24\\\"/.test(a))throw new Error('未找到同规格 SVG 图标');if(!/column-toggle-btn/.test(s))throw new Error('.column-toggle-btn 样式丢失');console.log('icon-replacement-static-check ok');\""
+      ],
+      "failurePolicy": "block",
+      "blockerCodes": []
+    }
+  ]
+}
